@@ -11,6 +11,7 @@ async function bootstrap() {
   const apiPrefix = process.env.API_PREFIX ?? '';
   const swaggerPrefix = process.env.SWAGGER_PREFIX ?? 'swagger';
   const port = process.env.PORT ?? 3000;
+  const host = process.env.HOST ?? 'http://localhost';
 
   app.setGlobalPrefix(apiPrefix);
 
@@ -23,10 +24,10 @@ async function bootstrap() {
 
   await app.listen(port ?? 3000);
 
-  logger.log(`Server started at http://localhost:${port}`);
+  logger.log(`Server started at ${host}:${port}/`);
   logger.log(
-    `Api available at http://localhost:${port}/${apiPrefix ? `${apiPrefix}/` : ''}`,
+    `Api available at ${host}:${port}/${apiPrefix ? `${apiPrefix}/` : ''}`,
   );
-  logger.log(`Swagger available at http://localhost:${port}/${swaggerPrefix}/`);
+  logger.log(`Swagger available at ${host}:${port}/${swaggerPrefix}/`);
 }
 bootstrap();
