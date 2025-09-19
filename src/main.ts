@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import 'dotenv/config';
+import { VERCEL_SWAGGER_FIX_OPTIONS } from './shared/constants';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -14,25 +15,25 @@ async function bootstrap() {
   const host = process.env.HOST ?? 'http://localhost';
 
   app.setGlobalPrefix(apiPrefix);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('AI-event API')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(swaggerPrefix, app, documentFactory, {
-    customSiteTitle: 'AI-event API',
-    customfavIcon: 'https://avatars.githubusercontent.com/u/6936373?s=200&v=4',
-    customJs: [
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
-    ],
-    customCssUrl: [
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.css',
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.css',
-    ],
-  });
+  SwaggerModule.setup(
+    swaggerPrefix,
+    app,
+    documentFactory,
+    VERCEL_SWAGGER_FIX_OPTIONS,
+  );
 
   await app.listen(port ?? 3000);
 
